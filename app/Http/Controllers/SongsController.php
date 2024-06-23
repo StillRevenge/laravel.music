@@ -3,51 +3,73 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Songs;
+use App\Models\Song;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use App\Http\Requests\PageRequest;
+use App\Http\Resources\Song\SongResource;
 
 class SongsController extends Controller
 {
     public function getAllSongs()
     {
-        $songs = Songs::all();
-        return view('songs.songs')->with('songs', $songs);
+        $songs = Song::all();
+        return $songs;
     }
 
     public function getById($id)
     {
-        $song = Songs::where('song_id', $id)->get();
-        return view('songs.songsid')->with('song', $song);
+        $song = Song::where('id', '=', $id)->first();
+        return new SongResource($song);
     }
 
-    public function updateSong($id)
+    public function edit($id)
     {
-        $song =  DB::table('songs')->where('song_id', $id)->first();
-        return view('songs.updatesong')->with('song', $song);
+        $songup = Song::where('id', '=', $id)->first();
+        return view('songs.updatesong')->with('song', $songup);
     }
-    public function update(Request $request, $id)
+    public function update($id, Request $request)
     {
-        $song = Songs::where('song_id', '=', $id)->first();
-        $song->update($request->all());
-
-        return redirect('songs/getall');
+        $song = Song::query()->find($id);
+        $song->song_title = $request->get('song_title');
+        $song->duration = $request->get('duration');
+        $song->save();
+        return true;
     }
     public function delete($id)
     {
-        Songs::where('song_id', '=', $id)->delete();
-        return redirect('songs/getall');
+        Song::where('id', '=', $id)->delete();
+        return true;
     }
-    public function create()
+    public function store(Request $request)
     {
-        return view('songs.create');
+        $song = new Song();
+        $song->song_title = $request->song_title;
+        $song->duration = $request->duration;
+        $song->album_id = $request->album_id;
+        $song->save();
+        return $song;
     }
-    public function store()
+    public function getPage(PageRequest $request): JsonResponse
     {
-        $song = new Songs();
+        $all = Song::query()->paginate($request->post('itemsOnPage'), ['*'], 'page', $request->post('pageNumber'));
+        return response()->json($all);
+    }
+    public function storeOne()
+    {
+        $song = new Song();
         $song->song_title = request('song_title');
         $song->duration = request('duration');
         $song->album_id = request('album_id');
         $song->save();
-        return redirect('/songs/all');
+        return redirect()->route('artists');
+    }
+    public function uploadSong(Request $request, $id)
+    {
+        $path = $request->file('file')->store('uploads', 'public');
+        $song = Song::query()->find($id);
+        $song->song_path = '/storage/' . $path;
+        $song->save();
+        return $song;
     }
 }

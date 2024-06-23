@@ -1,7 +1,7 @@
 @extends ('layout')
 
 @section('content')
-<h2>dasdad</h2>
+<h2>Добавить песню</h2>
 <form method="POST" action="/songs/create/store">
     {{csrf_field()}}
     <div>

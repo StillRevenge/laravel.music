@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArtistsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SongsController;
 
@@ -14,25 +15,21 @@ use App\Http\Controllers\SongsController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/{page}', [App\Http\Controllers\HomeController::class, 'index'])->where('page', '.*');
 
-Route::get('/qwe', function () {
-    return view('songs.test');
-});
-Route::get('/test', function () {
-    return 'hello';
-});
+/*
+
 Route::prefix('songs')->group(function () {
     Route::get('/all', [SongsController::class, 'getAllSongs'])->name('songs');
-    Route::get('/create', [SongsController::class, 'create']);
-    Route::get('/{id}', [SongsController::class, 'getById']);
-    Route::get('/update/{id}', [SongsController::class, 'updateSong']);
-    Route::put('up/{id}',  [SongsController::class, 'update']);
-    Route::get('/delete/{id}', [SongsController::class, 'delete']);
+    Route::get('/create', [SongsController::class, 'create'])->name('create');
+    Route::get('/get/{id}', [SongsController::class, 'getById']);
+    Route::get('/{id}/edit', [SongsController::class, 'edit'])->name('edit');
+    Route::put('/{id}/update', [SongsController::class, 'update'])->name('songs.update');
+    Route::get('/delete/{id}', [SongsController::class, 'delete'])->name('delete');
     Route::post('/create/store', [SongsController::class, 'store']);
-});
-Route::get('/login', function () {
-    return view('login.index');
-})->name('login');
+    Route::get('/addsong/{id}', [SongsController::class, 'addSong'])->name('addSong');
+});*/
+//Route::get('/login', function () {
+// return view('login.index');
+//})->name('login');
+Auth::routes();
